@@ -160,7 +160,6 @@ void muestra_config(){
         u8g2.drawStr(68, ab + 40, _2_string(hw_config.dia_ploteo));
         u8g2.drawStr(85, ab + 40, "d/sem");
         
-        u8g2.drawStr(43, ab + 52, "GUARDAR");
         u8g2.drawStr(10, ab + 52, "GUARDAR");
         
         u8g2.drawHLine(lugares[hw.lugar_actual].x, ab + lugares[hw.lugar_actual].y, lugares[hw.lugar_actual].largo);
