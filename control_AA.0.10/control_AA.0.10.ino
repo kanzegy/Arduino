@@ -45,7 +45,7 @@ accion_boton lugares[15] = {
     accion_boton(10,  21,  48,  2,  4,  0,   9,   0,   0, nullptr              , 'F'), // FECHA - 3
     accion_boton(10,  31,  48,  3,  5,  0,  12,   0,   0, nullptr              , 'H'), // HORA - 4
     accion_boton(10,  41,  48,  4,  6,  0,  14,   0,   0, nullptr              , 'P'), // PLOTEO - 5
-    accion_boton(43,  53,  42,  5,  1,  0, 100,   0,   0, nullptr              , 'A'), // ACEPTAR - 6
+    accion_boton(10,  53,  42,  5,  1,  0, 100,   0,   0, nullptr              , 'A'), // ACEPTAR - 6
     accion_boton(68,   1,  41, -1, -1,  1,  -1,  50,  16, &hw_config.temp_max  , 't'), // CONFIG TEMPERATURA - 7
     accion_boton(68,  11,  41, -1, -1,  2,  -1,  20,   1, &hw_config.umbral    , 'u'), // CONFIG UMBRAL - 8
     accion_boton(68,  21,  11, -1, -1,  3,  10,  31,   0, &hw_config.f_dia     , 'd'), // CONFIG DIA - 9
@@ -161,6 +161,7 @@ void muestra_config(){
         u8g2.drawStr(85, ab + 40, "d/sem");
         
         u8g2.drawStr(43, ab + 52, "GUARDAR");
+        u8g2.drawStr(10, ab + 52, "GUARDAR");
         
         u8g2.drawHLine(lugares[hw.lugar_actual].x, ab + lugares[hw.lugar_actual].y, lugares[hw.lugar_actual].largo);
 
