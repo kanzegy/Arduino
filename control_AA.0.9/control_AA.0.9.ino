@@ -11,11 +11,13 @@ virtuabotixRTC myRTC(6, 7, 5);
 U8G2_ST7565_ERC12864_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=CSL*/ 13, /* data=SI*/ 11, /* cs=CS*/ 10, /* dc=RS*/ 9, /* reset=RSE*/ 8);
 time_t momento_actual;
 
-enum direccion {
+enum comandos_serial {
   arriba = 0,
   abajo = 1,
   atras = 2,
-  adelante = 3
+  adelante = 3,
+  _440 = 4,
+  _490 = 5
 };
 
 // Definir la estructura accion_boton
@@ -61,7 +63,7 @@ struct accion_boton {
 
     // Función preciona_arriba: Incrementa el valor de parametro_afectado
     int preciona_arriba() {
-      Serial.println("preciona_arriba");
+      Serial.println("OK");
       if (parametro_afectado && parametro_afectado != nullptr && *parametro_afectado < max) {
           (*parametro_afectado)++;
       }
@@ -70,7 +72,7 @@ struct accion_boton {
 
     // Función preciona_abajo: Reduce el valor de parametro_afectado
     int preciona_abajo() {
-      Serial.println("preciona_abajo");
+      Serial.println("OK");
       if (parametro_afectado && parametro_afectado != nullptr && *parametro_afectado > min) {
           (*parametro_afectado)--;
       }
@@ -79,13 +81,13 @@ struct accion_boton {
 
     // Función preciona_atras: Retorna el valor de atras
     int preciona_atras() {
-      Serial.println("preciona_atras");
+      Serial.println("OK");
       return atr;
     }
 
     // Función preciona_adelante: Retorna el valor de adelante
     int preciona_adelante() {
-      Serial.println("preciona_adelante");
+      Serial.println("OK");
       return ade;
     }
 };
@@ -256,7 +258,7 @@ accion_boton  lugares[15] = {
   accion_boton(68, 41, 41, -1, -1, 5, -1, 30, 5, &hw_config.ploteo_dias, 'p'), // CONFIG PLOTEO - 14
 };
 
-direccion recibir_comando() {
+comandos_serial recibir_comando() {
   if (Serial.available() > 0) {
     String input = Serial.readString(); // Leer el input del puerto serial
     input.trim();
@@ -268,22 +270,29 @@ direccion recibir_comando() {
       return atras;
     } else if (input == "AD") {
       return adelante;
+    } else if (input == "#440") {
+      return _440;
+    } else if (input == "#490") {
+      return _490;
     }
   }
   return -1; // Retornar -1 si no se recibe un comando válido
 }
 
-void ejecuta_accion_comando(direccion dir){
+void ejecuta_accion_comando(comandos_serial dir){
   int next = -1;
   switch(dir){
     case arriba: next = lugares[hw.lugar_actual].preciona_arriba(); break;
     case abajo: next = lugares[hw.lugar_actual].preciona_abajo(); break;
     case atras: next = lugares[hw.lugar_actual].preciona_atras(); break;
     case adelante: next = lugares[hw.lugar_actual].preciona_adelante(); break;
+    case _440:  Serial.println("440"); break;
+    case _490:  Serial.println("490"); break;
+    default: Serial.println("ERR:COM_NO_VALIDO"); break;
   }
   if(next != -1) {
-    Serial.print("next != -1 --> ");
-    Serial.println(next);
+    // Serial.print("next != -1 --> ");
+    // Serial.println(next);
     hw.lugar_actual = next;
     }
 }
