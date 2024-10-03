@@ -29,33 +29,31 @@ enum comandos_serial {
 };
 
 // Declaración de las instancias de Clima
-Clima clima_principal;
-Clima clima_secundario;
-
-// Inicialización de estado_hw
-estado_hw hw = {&clima_principal, &clima_secundario, 0, 0, 25, 22, 7};
+Clima clima_principal(1, 3, true, h_apagado, now());
+Clima clima_secundario(2, 4, false, h_apagado, now());
+estado_hw hw = {&clima_principal, &clima_secundario, 0, 0, 27, 5, 7, 0};
 
 // Inicialización de Config
 Config hw_config = {0, 0, 0, 0, 0, 0, 0, 0};
 
 // Declaración y inicialización del array de accion_boton
 accion_boton lugares[15] = {
-    // accion_boton(x, y, larg, AR, AB, AT, AD, MAX, MIN, VARIABLE_A_CONTROLAR, ALIAS), // EJEMPLO
-    accion_boton(0, 0, 0, -1, -1, -1, 1, 0, 0, nullptr, 'D'), // DASHBOARD - 0
-    accion_boton(10, 1, 48, 6, 2, 0, 7, 0, 0, nullptr, 'T'), // TEMPERATURA - 1
-    accion_boton(10, 11, 48, 1, 3, 0, 8, 0, 0, nullptr, 'U'), // UMBRAL - 2
-    accion_boton(10, 21, 48, 2, 4, 0, 9, 0, 0, nullptr, 'F'), // FECHA - 3
-    accion_boton(10, 31, 48, 3, 5, 0, 12, 0, 0, nullptr, 'H'), // HORA - 4
-    accion_boton(10, 41, 48, 4, 6, 0, 14, 0, 0, nullptr, 'P'), // PLOTEO - 5
-    accion_boton(43, 53, 42, 5, 1, 0, 100, 0, 0, nullptr, 'A'), // ACEPTAR - 6
-    accion_boton(68, 1, 41, -1, -1, 1, -1, 30, 22, &hw_config.temp_max, 't'), // CONFIG TEMPERATURA - 7
-    accion_boton(68, 11, 41, -1, -1, 2, -1, 3, 15, &hw_config.umbral, 'u'), // CONFIG UMBRAL - 8
-    accion_boton(68, 21, 11, -1, -1, 3, 10, 30, 0, &hw_config.f_dia, 'd'), // CONFIG DIA - 9
-    accion_boton(86, 21, 11, -1, -1, 9, 11, 12, 0, &hw_config.f_mes, 'm'), // CONFIG MES - 10
-    accion_boton(104, 21, 22, -1, -1, 10, -1, 9999, 1992, &hw_config.f_anio, 'a'), // CONFIG AÑO - 11
-    accion_boton(68, 31, 12, -1, -1, 4, 13, 23, 0, &hw_config.f_hora, 'h'), // CONFIG HORA - 12
-    accion_boton(86, 31, 12, -1, -1, 12, -1, 59, 0, &hw_config.f_min, 'i'), // CONFIG MINUTO - 13
-    accion_boton(68, 41, 41, -1, -1, 5, -1, 30, 5, &hw_config.ploteo_dias, 'p'), // CONFIG PLOTEO - 14
+              //(x,   y, larg, AR, AB, AT,  AD, MAX, MIN, VARIABLE_A_CONTROLAR, ALIAS), // EJEMPLO
+    accion_boton(0,    0,   0, -1, -1, -1,  -1,   0,   0, nullptr              , 'D'), // DASHBOARD - 0
+    accion_boton(10,   1,  48,  6,  2,  0,   7,   0,   0, nullptr              , 'T'), // TEMPERATURA - 1
+    accion_boton(10,  11,  48,  1,  3,  0,   8,   0,   0, nullptr              , 'U'), // UMBRAL - 2
+    accion_boton(10,  21,  48,  2,  4,  0,   9,   0,   0, nullptr              , 'F'), // FECHA - 3
+    accion_boton(10,  31,  48,  3,  5,  0,  12,   0,   0, nullptr              , 'H'), // HORA - 4
+    accion_boton(10,  41,  48,  4,  6,  0,  14,   0,   0, nullptr              , 'P'), // PLOTEO - 5
+    accion_boton(43,  53,  42,  5,  1,  0, 100,   0,   0, nullptr              , 'A'), // ACEPTAR - 6
+    accion_boton(68,   1,  41, -1, -1,  1,  -1,  50,  16, &hw_config.temp_max  , 't'), // CONFIG TEMPERATURA - 7
+    accion_boton(68,  11,  41, -1, -1,  2,  -1,  20,   1, &hw_config.umbral    , 'u'), // CONFIG UMBRAL - 8
+    accion_boton(68,  21,  11, -1, -1,  3,  10,  31,   0, &hw_config.f_dia     , 'd'), // CONFIG DIA - 9
+    accion_boton(86,  21,  11, -1, -1,  9,  11,  12,   0, &hw_config.f_mes     , 'm'), // CONFIG MES - 10
+    accion_boton(104, 21,  22, -1, -1, 10,  -1,9999,1992, &hw_config.f_anio    , 'a'), // CONFIG AÑO - 11
+    accion_boton(68,  31,  12, -1, -1,  4,  13,  23,   0, &hw_config.f_hora    , 'h'), // CONFIG HORA - 12
+    accion_boton(86,  31,  12, -1, -1, 12,  -1,  59,   0, &hw_config.f_min     , 'i'), // CONFIG MINUTO - 13
+    accion_boton(68,  41,  41, -1, -1,  5,  -1,  28,   1, &hw_config.dia_ploteo, 'p'), // CONFIG PLOTEO - 14
 };
 
 // Función para recibir comandos seriales
@@ -98,16 +96,24 @@ void ejecuta_accion_comando(comandos_serial dir){
             break;
         case _440: envia_estatus_440();
             break;
-        case _490:  
-            Serial.println("490"); 
+        case _490: hw.lugar_actual = 1; // el 1 es para entrar en la configuracion
             break;
     }
     if(next != -1) {
       hw.lugar_anterior = hw.lugar_actual;
       hw.lugar_actual = next;
 
-      if(hw.lugar_anterior == 0 && hw.lugar_actual != 0){
-        carga_config_actual
+      //quiere decir que abrio la configuracion
+      if(hw.lugar_anterior == 0 && hw.lugar_actual == 1){
+        Serial.println("OK-CONFIG");
+        hw_config.abrir_config(hw.temp_max, hw.umbral, hw_config.dia_ploteo, year(momento_actual), month(momento_actual), day(momento_actual), hour(momento_actual), minute(momento_actual), 0);
+      }
+      //quiere decir que preciono el boton de guardar
+      else if(hw.lugar_actual == 100){
+        Serial.println("CONFIG-GUARDADA");
+        hw_config.guarda_eprom();
+        establece_configuracion();
+        hw.lugar_actual = 0;
       }
     }
 }
@@ -119,7 +125,6 @@ void actualiza_display(){
     }
     else{
         muestra_config();
-        hw_config.abrir_config(hw.temp_max, hw.umbral,year(momento_actual) month(momento_actual), day(momento_actual),minute(momento_actual), second(momento_actual), hw_config.ploteo_dias);
     }
 }
 
@@ -146,15 +151,16 @@ void muestra_config(){
 
         u8g2.drawStr(10, ab + 30, "Hora");
         u8g2.drawStr(60, ab + 30, ":");
+        u8g2.drawStr(68, ab + 30, "  :");
         u8g2.drawStr(68, ab + 30, _2_digit_number(hw_config.f_hora));
         u8g2.drawStr(86, ab + 30, _2_digit_number(hw_config.f_min));
         
-        u8g2.drawStr(10, ab + 40, "Ploteo");
+        u8g2.drawStr(10, ab + 40, "Dia plot");
         u8g2.drawStr(60, ab + 40, ":");
-        u8g2.drawStr(68, ab + 40, _2_string(hw_config.ploteo_dias));
-        u8g2.drawStr(77, ab + 40, "dias");
+        u8g2.drawStr(68, ab + 40, _2_string(hw_config.dia_ploteo));
+        u8g2.drawStr(85, ab + 40, "d/sem");
         
-        u8g2.drawStr(43, ab + 52, "ACEPTAR");
+        u8g2.drawStr(43, ab + 52, "GUARDAR");
         
         u8g2.drawHLine(lugares[hw.lugar_actual].x, ab + lugares[hw.lugar_actual].y, lugares[hw.lugar_actual].largo);
 
@@ -200,27 +206,64 @@ void muestra_temperaturas(){
     } while ( u8g2.nextPage() );
 }
 void envia_estatus_440(){
-  //Serial.println("440"); 
-  Serial.print(_2_string(hw.principal->temp));Serial.print("|");
-  Serial.print(_2_string(hw.secundario->temp));Serial.print("|");
+  Serial.print(hw.principal->temp);Serial.print("|");
+  Serial.print(hw.secundario->temp);Serial.print("|");
+
+  Serial.print(hw.principal->estado);Serial.print("|");
+  Serial.print(hw.secundario->estado);Serial.print("|");
+
+  Serial.println(hw.paro_emergencia);
+}
+
+void establece_configuracion(){
+
+  Serial.print(hw_config.temp_max);Serial.print(" MXT|");
+  Serial.print(hw_config.umbral);Serial.print(" UBRL|");
+  Serial.print(hw_config.dia_ploteo);Serial.print(" DPLT|");
+  Serial.print(hw_config.f_anio);Serial.print(" Y|");
+  Serial.print(hw_config.f_mes);Serial.print(" M|");
+  Serial.print(hw_config.f_dia);Serial.print(" D|");
+  Serial.print(hw_config.f_hora);Serial.print(" H|");
+  Serial.print(hw_config.f_min);Serial.println(" min|");
+
+  hw.temp_max = hw_config.temp_max;
+  hw.umbral = hw_config.umbral;
+  hw.dia_ploteo = hw_config.dia_ploteo;
+  // seconds, minutes, hours, day of the week, day of the month, month, year
+  myRTC.setDS1302Time(hw_config.f_seg,hw_config.f_min, hw_config.f_hora, 0, hw_config.f_dia, hw_config.f_mes, hw_config.f_anio);
+  // hours, minutes, seconds, day, month, year
+  setTime(hw_config.f_hora, hw_config.f_min, hw_config.f_seg,  hw_config.f_dia, hw_config.f_mes, hw_config.f_anio);
+
+  // seconds, minutes, hours, day of the week, day of the month, month, year
+  // myRTC.setDS1302Time(0, 2, 3, 4, 10, 9, 2024);
+  //       //hh, mm, ss,DD,MM,AAAA
+  // setTime(5, 6, 7, 10, 9, 2024);
+
 }
 void setup() {
-    Serial.begin(9600);
-    Serial.setTimeout(20);
-    u8g2.begin();
-    u8g2.setContrast(10); // Contraste  
-    myRTC.setDS1302Time(0, 0, 0, 2, 16, 9, 2024);
-    setTime(7, 8, 9, 10, 9, 2024);
+  Serial.begin(9600);
+  Serial.setTimeout(20);
+  u8g2.begin();
+  
+  u8g2.setContrast(0); // Contraste  ¿
+  
+  hw_config.carga_eprom();
+  establece_configuracion();
+  
+  myRTC.updateTime();
+  momento_actual = now();
 
-    clima_principal = {1, true, h_apagado, now()};
-    clima_secundario = {2, false, h_apagado, now()};
+  // Configurar el pin del botón como entrada (paro de emergencia)
+  pinMode(2, INPUT);
+    
 }
 
 void loop() {
-    myRTC.updateTime();
-    momento_actual = now();
-    hw.verifica_temperaturas();
-    hw.verifica_ploteo();
-    ejecuta_accion_comando(recibir_comando());
-    actualiza_display();
+  
+  myRTC.updateTime();
+  momento_actual = now();
+  hw.verifica_temperaturas();
+  hw.verifica_ploteo(day(momento_actual));
+  ejecuta_accion_comando(recibir_comando());
+  actualiza_display();
 }

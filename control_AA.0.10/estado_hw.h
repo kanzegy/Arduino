@@ -11,10 +11,12 @@ struct estado_hw {
     int lugar_anterior; 
     int temp_max;
     int umbral;
-    int ploteo_dias;
+    int dia_ploteo;
+    int paro_emergencia;
 
-    void verifica_ploteo() {
-        if (principal->tiempo_siendo_principal() >= ploteo_dias){
+    void verifica_ploteo(int dia_del_mes) {
+        // si el dia del mes es el dia configurado para ploteo y lleva mas de 1 dia siendo el principal (es decir, no se hizo el cambio hoy)
+        if (dia_ploteo == dia_del_mes && principal->tiempo_siendo_principal() > 1){
             // Intercambio entre principal y secundario
             Clima* temp = principal;
             principal = secundario;
@@ -29,22 +31,24 @@ struct estado_hw {
     }
 
     void verifica_temperaturas(){
-        principal->leer_temperatura(); // Actualizamos el valor de la temperatura
-        secundario->leer_temperatura();
-        bool max_revasado = (principal->temp > temp_max || secundario->temp > temp_max);
-        bool min_alcanzado = (principal->temp < (temp_max - umbral) || secundario->temp < (temp_max - umbral));
-        if(min_alcanzado){
-            principal->apagar();
-            secundario->apagar();
-        }
-        else if(max_revasado){
-            if(principal->estado == h_apagado && (secundario->estado == h_apagado || secundario->tiempo_encendido() > 5*60/*5 MINUTOS*/)){
-                principal->encender();
-            }
-            else if(principal->tiempo_encendido() > 5*60/*5 MINUTOS*/){
-                secundario->encender();
-            }
-        }
+      principal->leer_temperatura(); // Actualizamos el valor de la temperatura
+      secundario->leer_temperatura();
+      
+      bool max_revasado = (principal->temp > temp_max || secundario->temp > temp_max);
+      bool min_alcanzado = (principal->temp < (temp_max - umbral) || secundario->temp < (temp_max - umbral));
+
+      if(min_alcanzado || paro_emergencia){
+          principal->apagar();
+          secundario->apagar();
+      }
+      else if(max_revasado){
+          if(principal->estado == h_apagado && (secundario->estado == h_apagado || secundario->tiempo_encendido() > 5*60/*5 MINUTOS*/)){
+              principal->encender();
+          }
+          else if(principal->tiempo_encendido() > 5*60/*5 MINUTOS*/){
+              secundario->encender();
+          }
+      }
     }
 };
 

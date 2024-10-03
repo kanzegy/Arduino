@@ -46,7 +46,7 @@ struct accion_boton {
 
     // Funci�n preciona_arriba: Incrementa el valor de parametro_afectado
     int preciona_arriba() {
-        Serial.println("OK");
+        Serial.println("OK-AR");
         if (parametro_afectado != nullptr && *parametro_afectado < max) {
             (*parametro_afectado)++;
         }
@@ -55,7 +55,7 @@ struct accion_boton {
 
     // Funci�n preciona_abajo: Reduce el valor de parametro_afectado
     int preciona_abajo() {
-        Serial.println("OK");
+        Serial.println("OK-AB");
         if (parametro_afectado != nullptr && *parametro_afectado > min) {
             (*parametro_afectado)--;
         }
@@ -64,13 +64,13 @@ struct accion_boton {
 
     // Funci�n preciona_atras: Retorna el valor de atras
     int preciona_atras() {
-        Serial.println("OK");
+        Serial.println("OK-AT");
         return atr;
     }
 
     // Funci�n preciona_adelante: Retorna el valor de adelante
     int preciona_adelante() {
-        Serial.println("OK");
+        Serial.println("OK-AD");
         return ade;
     }
 };
