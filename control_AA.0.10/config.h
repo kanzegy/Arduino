@@ -3,9 +3,9 @@
 
 #include <EEPROM.h>  // Incluir la librería EEPROM
 
-#define EEPROM_FLAG_ADDR 0      // Dirección en EEPROM para la bandera
-#define EEPROM_CONFIG_ADDR sizeof(int)  // Dirección en EEPROM para los datos de configuración
-#define EEPROM_FLAG_VALUE 0xA5A5  // Valor que actúa como la bandera
+#define EEPROM_FLAG_ADDR 0                   // Dirección en EEPROM para la bandera
+#define EEPROM_CONFIG_ADDR sizeof(int)       // Dirección en EEPROM para los datos de configuración
+#define EEPROM_FLAG_VALUE 0xA5A5             // Valor que actúa como la bandera
 
 struct Config {
   int temp_max;
@@ -18,23 +18,31 @@ struct Config {
   int f_min;
   int f_seg;
 
-  // Función para guardar la configuración en la EEPROM
+  // Función para guardar la configuración en la EEPROM (solo temp_max, umbral, dia_ploteo)
   void guarda_eprom() {
     int flag = EEPROM_FLAG_VALUE;  // Establecer la bandera para indicar que los datos son válidos
     EEPROM.put(EEPROM_FLAG_ADDR, flag);  // Guardar la bandera en la dirección 0
-    EEPROM.put(EEPROM_CONFIG_ADDR, *this);  // Guardar toda la estructura en la EEPROM a partir de la dirección siguiente
+
+    // Guardar solo temp_max, umbral y dia_ploteo en la EEPROM
+    EEPROM.put(EEPROM_CONFIG_ADDR, temp_max);
+    EEPROM.put(EEPROM_CONFIG_ADDR + sizeof(temp_max), umbral);
+    EEPROM.put(EEPROM_CONFIG_ADDR + sizeof(temp_max) + sizeof(umbral), dia_ploteo);
   }
 
-  // Función para cargar la configuración desde la EEPROM
+  // Función para cargar la configuración desde la EEPROM (solo temp_max, umbral, dia_ploteo)
   void carga_eprom() {
     int flag;
     EEPROM.get(EEPROM_FLAG_ADDR, flag);  // Leer la bandera desde la EEPROM
 
     if (flag == EEPROM_FLAG_VALUE) {
       Serial.println("Cargando configuracion guardada.");
-      EEPROM.get(EEPROM_CONFIG_ADDR, *this);
+
+      // Cargar solo temp_max, umbral y dia_ploteo desde la EEPROM
+      EEPROM.get(EEPROM_CONFIG_ADDR, temp_max);
+      EEPROM.get(EEPROM_CONFIG_ADDR + sizeof(temp_max), umbral);
+      EEPROM.get(EEPROM_CONFIG_ADDR + sizeof(temp_max) + sizeof(umbral), dia_ploteo);
     } else {
-      Serial.println("EEPROM vacía cargando configuracion default.");
+      Serial.println("EEPROM vacía, cargando configuracion default.");
       temp_max = 27;
       umbral = 5;
       dia_ploteo = 1;
@@ -46,6 +54,7 @@ struct Config {
       f_seg = 0;
     }
   }
+
   // Función para abrir la configuración con parámetros
   void abrir_config(int _temp_max, int _umbral, int _dia_ploteo, int _f_anio, int _f_mes, int _f_dia, int _f_hora, int _f_min, int _f_seg) {
     temp_max = _temp_max;

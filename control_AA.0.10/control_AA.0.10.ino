@@ -112,7 +112,7 @@ void ejecuta_accion_comando(comandos_serial dir){
       else if(hw.lugar_actual == 100){
         Serial.println("CONFIG-GUARDADA");
         hw_config.guarda_eprom();
-        establece_configuracion();
+        establece_configuracion(true);
         hw.lugar_actual = 0;
       }
     }
@@ -211,11 +211,14 @@ void envia_estatus_440(){
 
   Serial.print(hw.principal->estado);Serial.print("|");
   Serial.print(hw.secundario->estado);Serial.print("|");
+  
+  Serial.print(hw.principal->alarma);Serial.print("|");
+  Serial.print(hw.secundario->alarma);Serial.print("|");
 
   Serial.println(hw.paro_emergencia);
 }
 
-void establece_configuracion(){
+void establece_configuracion(bool guardando_config){
 
   Serial.print(hw_config.temp_max);Serial.print(" MXT|");
   Serial.print(hw_config.umbral);Serial.print(" UBRL|");
@@ -229,10 +232,15 @@ void establece_configuracion(){
   hw.temp_max = hw_config.temp_max;
   hw.umbral = hw_config.umbral;
   hw.dia_ploteo = hw_config.dia_ploteo;
-  // seconds, minutes, hours, day of the week, day of the month, month, year
-  myRTC.setDS1302Time(hw_config.f_seg,hw_config.f_min, hw_config.f_hora, 0, hw_config.f_dia, hw_config.f_mes, hw_config.f_anio);
+
+  if(guardando_config){
+    // seconds, minutes, hours, day of the week, day of the month, month, year
+    myRTC.setDS1302Time(hw_config.f_seg,hw_config.f_min, hw_config.f_hora, 0, hw_config.f_dia, hw_config.f_mes, hw_config.f_anio);
+  }
+  
+  momento_actual = now();
   // hours, minutes, seconds, day, month, year
-  setTime(hw_config.f_hora, hw_config.f_min, hw_config.f_seg,  hw_config.f_dia, hw_config.f_mes, hw_config.f_anio);
+  setTime(hour(momento_actual), minute(momento_actual), second(momento_actual),  day(momento_actual), month(momento_actual), year(momento_actual));
 
   // seconds, minutes, hours, day of the week, day of the month, month, year
   // myRTC.setDS1302Time(0, 2, 3, 4, 10, 9, 2024);
@@ -243,15 +251,13 @@ void establece_configuracion(){
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(20);
-  u8g2.begin();
   
+  u8g2.begin();
   u8g2.setContrast(0); // Contraste  ¿
   
   hw_config.carga_eprom();
-  establece_configuracion();
-  
   myRTC.updateTime();
-  momento_actual = now();
+  establece_configuracion(false);
 
   // Configurar el pin del botón como entrada (paro de emergencia)
   pinMode(2, INPUT);
@@ -262,6 +268,9 @@ void loop() {
   
   myRTC.updateTime();
   momento_actual = now();
+
+  hw.verifica_alarmas();
+  hw.verifica_paro_emergencia();
   hw.verifica_temperaturas();
   hw.verifica_ploteo(day(momento_actual));
   ejecuta_accion_comando(recibir_comando());

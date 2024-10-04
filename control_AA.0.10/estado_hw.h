@@ -12,7 +12,7 @@ struct estado_hw {
     int temp_max;
     int umbral;
     int dia_ploteo;
-    int paro_emergencia;
+    bool paro_emergencia;
 
     void verifica_ploteo(int dia_del_mes) {
         // si el dia del mes es el dia configurado para ploteo y lleva mas de 1 dia siendo el principal (es decir, no se hizo el cambio hoy)
@@ -49,6 +49,16 @@ struct estado_hw {
               secundario->encender();
           }
       }
+    }
+
+    void verifica_alarmas(){
+      principal->hay_alarma();
+      secundario->hay_alarma();
+    }
+
+    void verifica_paro_emergencia(){
+      //logica para ver si hay paro de emergencia
+      paro_emergencia = false;
     }
 };
 

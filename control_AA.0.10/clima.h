@@ -21,6 +21,7 @@ struct Clima {
     time_t principal_desde;
     time_t hora_encendido;
     int temp;
+    bool alarma;
     Clima(int _sensor, int _pin_compresor, bool _es_principal, Estados _estado, time_t _principal_desde) {
       sensor = _sensor;
       pin_compresor = _pin_compresor;
@@ -64,6 +65,12 @@ struct Clima {
     long tiempo_siendo_principal() {
         if (!es_principal) return -1;
         return (now() - principal_desde) / 86400; // 86400 segundos en un d�a
+    }
+
+    bool hay_alarma(){
+      //logica para leer y validar pin
+      alarma = false;
+      return alarma;
     }
 };
 
